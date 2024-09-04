@@ -7,7 +7,11 @@
   :min-lein-version "2.7.1"
 
   :dependencies [[org.clojure/clojure "1.10.0"]
-                 [org.clojure/clojurescript "1.11.4"]]
+                 [org.clojure/clojurescript "1.11.4"]
+                 [reagent "1.2.0"]
+                 [cljsjs/react "17.0.2-0"]
+                 [cljsjs/react-dom "17.0.2-0"]
+                 [cljs-ajax "0.8.4"]]
 
   :source-paths ["src"]
 
