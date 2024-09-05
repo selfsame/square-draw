@@ -8,7 +8,7 @@
   :file [
     {:x 20 :y 20 :w 100 :h 60 :fill "#ff3300"}
     ]
-  :selected nil
+  :selected 0
   }))
 
 
@@ -22,13 +22,18 @@
     (for [el (:file @state)]
       (do 
         (set! (.-fillStyle ctx) (:fill el "silver"))
-        (.fillRect ctx (:x el) (:y el) (:w el) (:h el)))
-      )))
+        (.fillRect ctx (:x el) (:y el) (:w el) (:h el)))))
+  (when-let [el (get (:file @state) (:selected @state))]
+    (.setLineDash ctx #js [6])
+    (.strokeRect ctx (:x el) (:y el) (:w el) (:h el))
+  )
+  )
 
 ; ideally this would schedule render! in a requestAnimationFrame
 (add-watch state :render
   (fn [k r o n]
-    (when (not= (:file o) (:file n))
+    (when (or (not= (:file o) (:file n))
+              (not= (:selected o) (:selected n)))
       (render!))))
 
 
@@ -37,12 +42,22 @@
   ; hardcoded in the css
   [(- x 100) (- y 12)])
 
+(defn pick [cx cy]
+  ; return a vector of every element overlapping the given coords
+  (let [[cx cy] (mouse->canvas cx cy)]
+    (filterv 
+      (fn [[idx {:keys [x y w h]}]]
+        (and (< x cx (+ x w))
+             (< y cy (+ y h))))
+      (map-indexed vector (:file @state)))))
+
 (defn on-draw [e]
   ; note the initial mouse x/y and create a new element in the file vector
   ; then set up a mouse move fn that modifies this new element's width based on the current mouse position
   (let [[x y] (mouse->canvas (.-x e) (.-y e))
         idx (count (:file @state))]
     (swap! state update :file conj {:x x :y y :w 0 :h 0 :fill "orange"})
+    (swap! state assoc :selected idx)
     (swap! state assoc :movefn 
       (fn [e]
         (let [[mx my] (mouse->canvas (.-x e) (.-y e))
@@ -51,14 +66,24 @@
         ))
     ))
 
+(defn on-move [e]
+  (if-let [[idx _] (first (pick (.-x e) (.-y e)))]
+    (do (swap! state assoc :selected idx)
+      )
+    (swap! state assoc :selected nil)
+    ))
+
 ; Input cycles, dispatch on mouse down based on the current tool.  If move/up handlers are needed
 ; they can be set up in the dispatched fn
 
 (defn pointer-down [e]
   (js/console.log e)
+  (prn (pick (.-x e) (.-y e)))
   (when (= (.-target e) canvas)
     (cond
-      (= (:tool @state) :draw) (on-draw e))))
+      (= (:tool @state) :draw) (on-draw e)
+      (= (:tool @state) :move) (on-move e)
+      )))
 
 (defn pointer-move [e]
   (if (:movefn @state) ((:movefn @state) e)))
@@ -82,7 +107,9 @@
         (fn [k] 
           [:div.tool 
             {:class (if (= (:tool @state) k) "active")
-             :on-click (fn [e] (swap! state assoc :tool k))}
+             :on-click (fn [e] 
+              (swap! state assoc :tool k)
+              (js/document.body.setAttribute "class" (name k)))}
             k])
         [:move :draw]))])
 
