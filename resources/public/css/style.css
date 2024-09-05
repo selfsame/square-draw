@@ -21,14 +21,24 @@ body.move canvas {
     width: 68px;
     border: 2px solid black;
     padding: 2px;
+    font-family: courier, monospace;
+    font-size: 12px;
+}
+
+.toolbar button, .toolbar input {
+    width: 100%;
+    margin: 4px 0 0;
 }
 
 .tool {
     width: 100%;
+    min-height: 32px;
     border: 1px solid black;
     box-sizing: border-box;
     margin-bottom: 2px;
-    cursor: pointer
+    cursor: pointer;
+    padding: 4px;
+    text-align: center;
 }
 
 .tool:hover {
