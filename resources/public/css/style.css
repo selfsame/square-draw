@@ -1,17 +1,25 @@
 body {
     margin: 0;
+    background: silver;
+}
+
+img {
+    user-drag: none;
+    -webkit-user-drag: none;
+    -moz-user-select: none;
 }
 
 canvas {
     position: absolute;
+    background: white;
     left: 100px;
     top: 12px;
     border: 1px solid black;
-    cursor: crosshair;
 }
 
-body.move canvas {
-    cursor: move;
+canvas, .toolbar {
+    background: white;
+    box-shadow: 2px 2px 3px rgba(0,0,0, 0.4);
 }
 
 .toolbar {
@@ -19,15 +27,34 @@ body.move canvas {
     left: 12px;
     top: 12px;
     width: 68px;
-    border: 2px solid black;
+    border: 1px solid black;
     padding: 2px;
     font-family: courier, monospace;
     font-size: 12px;
 }
 
+.toolbar .title {
+    background: #d1d1d1;
+    text-align: center;
+    padding: 2px;
+    border-bottom: 1px solid black;
+    margin: -2px;
+    margin-bottom: 2px;
+}
+
 .toolbar button, .toolbar input {
     width: 100%;
     margin: 4px 0 0;
+}
+
+.toolbar input {
+    height: 62px;
+}
+
+.toolbar label {
+    display: block;
+    text-align: center;
+    margin: 6px 0 -2px;
 }
 
 .tool {
